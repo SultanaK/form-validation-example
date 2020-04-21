@@ -4,26 +4,37 @@ class RegistrationForm extends Component {
 
   constructor(props) {
     super(props);
-    this.ssnInput = React.createRef();
     this.state = {
-      errorMessage: "",
-    }
+        ssn: {
+            value: "",
+            touched: false
+        }
+        
+    } 
+  }
+
+  setSsn = (value) => {
+    this.setState({
+        ssn:  {
+            value: value,
+            touched: true
+        } 
+    })
+  }
+
+  generateErrorMessage = () => {
+      let ssn = this.state.ssn.value
+      ssn = ssn.replace(/[\s-]/g, ''); // Remove whitespace and dashes
+
+      if (ssn.length !== 9) {
+          return "SSN must be 9 digits long"
+      } else if (!/^\d+$/.test(ssn)) {
+          return "SSN must only contain numbers"
+      }
   }
 
   handleSubmit = (e) => {
     e.preventDefault()
-
-    if (this.ssnInput.current.value.length === 9) {
-      // valid
-      this.setState({
-        errorMessage: "",
-      })
-    } else {
-      // not valid      
-      this.setState({
-        errorMessage: "SSN MUST be exactly 9 characters",
-      })
-    }
   }
 
   render() {
@@ -37,14 +48,18 @@ class RegistrationForm extends Component {
               className="registration__control"
               name="ssn"
               id="ssn"
-              ref={this.ssnInput}
+              value={this.state.ssn.value}
+              onChange={(event) => {this.setSsn(event.target.value)}}
             />
-            {this.state.errorMessage && <p>{this.state.errorMessage}</p>}
           </div>
+          {this.generateErrorMessage() && this.state.ssn.touched ?
+            <p>{this.generateErrorMessage()}</p> 
+          : ""}
           <div className="registration__button__group">
             <button
               type="submit"
               className="registration__button"
+              disabled={this.generateErrorMessage() || !this.state.ssn.touched}
             >
               Save
             </button>
